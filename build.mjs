@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { regionPosts } from "./region-posts.mjs";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE = "https://www.hibachikingusa.com";
@@ -16,7 +17,7 @@ const OWNER = "29227301";
 const LOGO = "/media/logo-mark.webp";
 const FAVICON = "/media/favicon.png";
 const HERO = "/media/gallery/party-1.webp";
-const TODAY = "2026-10-05";
+const TODAY = "2026-10-06";
 
 const GALLERY = [
   ["party-1.webp", "Backyard hibachi table set for a Hibachi King party"],
@@ -545,6 +546,8 @@ const POSTS = [
   },
 ];
 
+const ALL_POSTS = [...POSTS, ...regionPosts()];
+
 function blogCards(list) {
   return `<div class="blog-list">${list.map((post) => `<article class="blog-card">
       <p class="eyebrow">${esc(post.kicker)}</p>
@@ -554,11 +557,18 @@ function blogCards(list) {
 }
 
 function blogIndex() {
-  const title = "Outdoor Hibachi Blog | Hibachi King";
-  const description = "Notes on outdoor hibachi catering, party planning, birthdays, cost, and setup at home.";
+  const title = "Outdoor Hibachi Blog | Cities & Guides | Hibachi King";
+  const description = "Outdoor hibachi notes for Austin, Dallas, Houston, New York, Miami, Phoenix, and the other Hibachi King cities, plus catering, cost, and party planning.";
   const crumb = crumbs([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog/" }]);
-  const main = `${pageIntro(crumb.html, "Blog", "Outdoor hibachi notes", "Catering, parties, birthdays, cost, and how the grill is set up.")}
-<section class="band"><div class="wrap">${blogCards(POSTS)}</div></section>`;
+  const guides = ALL_POSTS.filter((post) => !post.region);
+  const places = ALL_POSTS.filter((post) => post.region);
+  const main = `${pageIntro(crumb.html, "Blog", "Outdoor hibachi notes", "Guides for the menu and the party, then a note for each city and state.")}
+<section class="band"><div class="wrap">
+  <h2 class="blog-group" id="guides">Guides</h2>
+  ${blogCards(guides)}
+  <h2 class="blog-group" id="places">Cities and states</h2>
+  ${blogCards(places)}
+</div></section>`;
   return shell({ title, description, path: "/blog/", extraLd: [crumb.ld], main });
 }
 
@@ -566,18 +576,25 @@ function blogPost(post) {
   const pathName = `/blog/${post.slug}/`;
   const crumb = crumbs([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog/" }, { name: post.h1, path: pathName }]);
   const body = post.blocks.map((block) => `${block.h2 ? `<h2>${esc(block.h2)}</h2>` : ""}${block.p.map((p) => `<p>${esc(p)}</p>`).join("")}`).join("");
-  const more = POSTS.filter((item) => item.slug !== post.slug).slice(0, 3);
+  const linked = (post.related || []).map((slug) => ALL_POSTS.find((item) => item.slug === slug)).filter(Boolean);
+  const more = linked.length ? linked.slice(0, 3) : ALL_POSTS.filter((item) => item.slug !== post.slug && !item.region).slice(0, 3);
+  const areaLinks = (post.links || []).map((link) => `<a href="${link.href}">${esc(link.label)}</a>`).join(" · ");
+  const landingHref = post.landing || "/service-area/";
+  const landingLabel = post.landingLabel || "cities";
+  const bookHref = post.book || "/book-online/";
+  const bookLabel = post.bookLabel || "Reserve a date";
   const main = `${pageIntro(crumb.html, post.kicker, esc(post.h1), esc(post.dek))}
 <section class="band" style="padding-top:1rem"><div class="wrap article-layout">
   <article class="prose">
     ${body}
-    <p>See the <a href="/menu/">outdoor hibachi menu</a>, the <a href="/service-area/">cities</a>, or <a href="/book-online/">book a date</a>.</p>
+    ${areaLinks ? `<p>More in this area: ${areaLinks}.</p>` : ""}
+    <p>See the <a href="${landingHref}">${esc(landingLabel)}</a>, the <a href="/menu/">outdoor hibachi menu</a>, or <a href="${bookHref}">${esc(bookLabel)}</a>.</p>
   </article>
   <aside class="book-panel">
     <p class="eyebrow">Book</p>
     <div class="amount">$50</div>
     <p>Per person. Kids 12 and under are $25. Every outdoor hibachi party has a $500 minimum.</p>
-    <a class="btn" href="/book-online/">Reserve a date</a>
+    <a class="btn" href="${bookHref}">${esc(bookLabel)}</a>
     <a class="btn btn-line" href="/estimation/">Estimate the party</a>
   </aside>
 </div></section>
@@ -589,6 +606,7 @@ function blogPost(post) {
     title: post.title,
     description: post.description,
     path: pathName,
+    image: post.image || HERO,
     extraLd: [crumb.ld, {
       "@type": "BlogPosting",
       headline: post.title,
@@ -597,7 +615,7 @@ function blogPost(post) {
       dateModified: TODAY,
       author: { "@type": "Organization", name: BRAND, url: `${SITE}/` },
       publisher: { "@id": `${SITE}/#business` },
-      image: `${SITE}${HERO}`,
+      image: `${SITE}${post.image || HERO}`,
       mainEntityOfPage: `${SITE}${pathName}`,
     }],
     main,
@@ -775,7 +793,7 @@ function cityPage(city) {
     <p class="link-row">${city.areas.map((a) => `<span>${esc(a)}</span>`).join(" ")}</p>
     <h2>${esc(city.name)} pricing</h2>
     <p>$50 per person, $25 for a child 12 and under, $500 minimum. Gratuity is not included. <a href="/menu/">See the menu</a> or <a href="/estimation/">build an estimate</a>.</p>
-    <p>More on <a href="/blog/outdoor-hibachi-catering/">outdoor hibachi catering</a>, <a href="/blog/outdoor-hibachi-cost/">what a party costs</a>, and <a href="/blog/outdoor-hibachi-party/">planning the party</a>.</p>
+    <p><a href="/blog/outdoor-hibachi-in-${city.id}/">Outdoor hibachi in ${esc(city.name)}</a> covers the neighborhoods and the setup. Also see <a href="/blog/outdoor-hibachi-catering/">catering</a>, <a href="/blog/outdoor-hibachi-cost/">what a party costs</a>, and <a href="/blog/outdoor-hibachi-party/">planning the party</a>.</p>
   </article>
   <aside class="book-panel">
     <p class="eyebrow">Reserve ${esc(city.name)}</p>
@@ -814,7 +832,10 @@ function statePage(state) {
   const description = state.blurb;
   const crumb = crumbs([{ name: "Home", path: "/" }, { name: "Locations", path: "/service-area/" }, { name: state.name, path: `/${state.slug}/` }]);
   const main = `${pageIntro(crumb.html, state.abbr, `Outdoor hibachi in ${esc(state.name)}`, "Choose a city, then reserve a date.")}
-<section class="band"><div class="wrap">${cityCards(cities)}</div></section>`;
+<section class="band"><div class="wrap">
+  <p class="link-row" style="margin-bottom:1.5rem"><a href="/blog/outdoor-hibachi-across-${state.slug}/">Read the ${esc(state.name)} note</a></p>
+  ${cityCards(cities)}
+</div></section>`;
   return shell({ title, description, path: `/${state.slug}/`, extraLd: [crumb.ld], main });
 }
 
@@ -1008,7 +1029,7 @@ for (const city of CITIES) {
 for (const state of STATES) {
   pages.push([`${state.slug}/index.html`, statePage(state), "monthly", "0.7"]);
 }
-for (const post of POSTS) {
+for (const post of ALL_POSTS) {
   pages.push([`blog/${post.slug}/index.html`, blogPost(post), "monthly", "0.6"]);
 }
 
@@ -1055,6 +1076,9 @@ Official website for Hibachi King private hibachi catering.
 - FAQ: ${SITE}/faq/
 - Blog: ${SITE}/blog/
 - Contact: ${SITE}/contact/
+
+## City and state notes
+${ALL_POSTS.filter((post) => post.region).map((post) => `- ${post.h1}: ${SITE}/blog/${post.slug}/`).join("\n")}
 
 ## Contact
 - Phone: +1-929-992-9932

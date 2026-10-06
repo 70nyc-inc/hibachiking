@@ -555,7 +555,10 @@ p { margin: 0; }
 .article-layout { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 3.5rem; align-items: start; padding-bottom: 2rem; }
 .prose h2 { font-size: 2.6rem; margin: 2.2rem 0 0.8rem; }
 .prose p { color: var(--muted); margin-bottom: 0.95rem; }
+.blog-group { font-family: var(--serif); font-size: clamp(1.8rem, 2.5vw, 2.2rem); margin: 2.75rem 0 1.15rem; }
+.blog-group:first-child { margin-top: 0; }
 .blog-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.blog-list + .blog-group { margin-top: 2.75rem; }
 .blog-card {
   display: flex;
   flex-direction: column;
