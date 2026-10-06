@@ -555,6 +555,22 @@ p { margin: 0; }
 .article-layout { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 3.5rem; align-items: start; padding-bottom: 2rem; }
 .prose h2 { font-size: 2.6rem; margin: 2.2rem 0 0.8rem; }
 .prose p { color: var(--muted); margin-bottom: 0.95rem; }
+.blog-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.4rem 1.3rem 1.35rem;
+  border: 1px solid #efe7df;
+  border-left: 3px solid var(--gold);
+  border-radius: 12px;
+  background: #fffaf6;
+}
+.blog-card h2 { font-size: clamp(1.6rem, 2.4vw, 2.1rem); }
+.blog-card h2 a { text-decoration: none; }
+.blog-card h2 a:hover { color: var(--gold); }
+.blog-card p { color: var(--muted); }
+.blog-card .eyebrow { margin-bottom: 0; }
 .book-panel {
   position: sticky;
   top: calc(var(--header) + 1.25rem);
@@ -641,7 +657,7 @@ p { margin: 0; }
     animation: menu-in 0.35s ease;
   }
   .site-header.open .header-phone { display: block; padding: 0 1.5rem 1.2rem; }
-  .splash, .board, .article-layout, .contact-layout, .estimate-layout, .footer-grid, .sheets, .evening, .reel, .state-grid, .stage-grid, .price-cards, .menu-grid { grid-template-columns: 1fr; }
+  .splash, .board, .article-layout, .contact-layout, .estimate-layout, .footer-grid, .sheets, .evening, .reel, .state-grid, .stage-grid, .price-cards, .menu-grid, .blog-list { grid-template-columns: 1fr; }
   .stage-photo { height: 320px; }
   .reel img, .city-photo img, .side-photo img { height: 280px; min-height: 0; }
   .timeline, .facts, .frames { grid-template-columns: 1fr 1fr; }

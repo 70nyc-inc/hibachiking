@@ -179,7 +179,7 @@ function initMotion() {
     }, { passive: true });
   }
 
-  const reveal = document.querySelectorAll(".band-head, .timeline li, .board, .place-index li, .faq-item, .sheet, .frames button, .book-panel, .footer-grid > *, .prose > *, .receipt, .est-line, .side-photo, .reel a, .city-photo, .state-card, .price-card, .menu-section-card");
+  const reveal = document.querySelectorAll(".band-head, .timeline li, .board, .place-index li, .faq-item, .sheet, .frames button, .book-panel, .footer-grid > *, .prose > *, .receipt, .est-line, .side-photo, .reel a, .city-photo, .state-card, .price-card, .menu-section-card, .blog-card");
   if (!motionOK || !("IntersectionObserver" in window)) {
     reveal.forEach((el) => el.classList.add("is-in"));
     return;
