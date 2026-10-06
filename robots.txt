@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.hibachikingusa.com/sitemap.xml
+Allow: /llms.txt
